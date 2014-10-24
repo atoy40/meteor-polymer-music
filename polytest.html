@@ -12,6 +12,7 @@
   <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
   <link rel="import" href="/bower_components/paper-shadow/paper-shadow.html">
   <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+  <link rel="import" href="/components/periode-card.html">
 </head>
 
 <body>
@@ -26,37 +27,32 @@
   </paper-dialog>
 
   <core-header-panel condenses>
-    <core-toolbar class="medium-tall">
+    <core-toolbar>
       <div flex><h3>Haltere</h3></div>
       <paper-button raised success>Login</paper-button>
       <core-icon-button icon="search"></core-icon-button>
       <core-icon-button icon="more-vert"></core-icon-button>
-      <div class="fit bottom" horizontal layout>
+      <!--div class="fit bottom" horizontal layout>
       <paper-tabs id="tabs" selected="all" self-end>
         <paper-tab name="all">Blabla</paper-tab>
         <paper-tab name="favorites">Bloblo</paper-tab>
       </paper-tabs>
-    </div>
+      </div-->
     </core-toolbar>
     <div class="container" layout vertical center>
-      {{> card}}
-      {{> card}}
+      {{#each cards}}
+        {{> card}}
+      {{/each}}
     </div>
   </core-header-panel>
 </template>
 
 <template name="card">
-      <div style="padding: 20px">
+      <periode-card>
         <paper-shadow z="1"></paper-shadow>
-        <h2>Jean-Luc Brassard</h2>
-        <h3>Période 3</h3>
-        <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.
-        </p>
-        <div layout horizontal end>
-          <paper-fab icon="reply" mini></paper-fab>
-          <div flex></div>
-          <paper-fab icon="done"></paper-fab>
-        </div>
-      </div>
+        <h2>{{name}}</h2>
+        <h3>{{periode}}</h3>
+        <p entreprise>{{reportent}}</p>
+        <p iut>{{reportiut}}</p>
+      </periode-card>
 </template>

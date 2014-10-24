@@ -5,6 +5,23 @@ if (Meteor.isClient) {
       document.querySelector('paper-dialog').toggle();
     }
   });
+
+  Template.layout.cards = function() {
+    return [
+      {
+        name: "Kelly Slater",
+        periode: "Periode 2",
+        reportent: "sdsqdsqdsqd",
+        reportiut: "dfdfsdfffffsdfsf",
+      },
+      {
+        name: "Jean-Luc Brassard",
+        periode: "Periode 3",
+        reportent: "sdsqdsqdsqd",
+        reportiut: "dfdfsdfffffsdfsf",
+      },
+    ];
+  };
 }
 
 if (Meteor.isServer) {
