@@ -1,0 +1,28 @@
+<polymer-element name="meteor-collection">
+  <script>
+    Polymer('meteor-collection', {
+      publish: {
+        collection: null,
+        ref: null,
+        cursor: null,
+        query: {}
+      },
+      observe: {
+        'ref query': 'refind'
+      },
+      collectionChanged: function() {
+        if (this.collection) {
+          this.ref = new Mongo.Collection(this.collection);
+          //Meteor.subscribe(this.collection);
+        }
+      },
+      refind: function() {
+        this.cursor = this.collection.find(this.query);
+        this.cursor.observe
+      },
+      cursorChanged = function() {
+
+      }
+    });
+  </script>
+</polymer-element>

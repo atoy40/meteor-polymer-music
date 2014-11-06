@@ -49,15 +49,22 @@
     <paper-input multiline rows="3" label="Ecrire ici votre commentaire d'approbation ou de refus" style="width: 100%;"></paper-input>
     <div layout horizontal end>
       <core-tooltip label='Refuser le rapport' position="top">
-        <paper-fab icon="reply" style="background-color: #ff7043;" mini></paper-fab>
+      <paper-fab icon="reply" style="background-color: #ff7043;" on-click="{{onRefuseClick}}" mini></paper-fab>
       </core-tooltip>
       <div flex></div>
       <core-tooltip label='Approuver le rapport' position="top">
-        <paper-fab icon="done" style="background-color: #8bc34a;"></paper-fab>
+        <paper-fab icon="done" style="background-color: #8bc34a;" on-click="{{onApproveClick}}"></paper-fab>
       </core-tooltip>
     </div>
   </template>
   <script>
-  Polymer({});
+  Polymer({
+    onApproveClick: function() {
+      this.fire('approve');
+    },
+    onRefuseClick: function() {
+      this.fire('refuse');
+    }
+  });
   </script>
 </polymer-element>
