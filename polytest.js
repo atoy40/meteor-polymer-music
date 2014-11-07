@@ -6,4 +6,14 @@ if (Meteor.isClient) {
   });
 }
 
-if (Meteor.isServer) {}
+if (Meteor.isServer) {
+  var test = new Mongo.Collection('test');
+
+  if (test.find({}).count() < 1) {
+    test.insert({bla: "blo", bli: "blu"});
+  }
+
+  Meteor.publish('testsub', function() {
+    return test.find({});
+  })
+}

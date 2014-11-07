@@ -2,9 +2,59 @@
   <script>
     Polymer('meteor-collection', {
       publish: {
+        name: null,
+        ref: null,
+      },
+      nameChanged: function() {
+        if (this.name) {
+          this.ref = new Mongo.Collection(this.name);
+        }
+      },
+    });
+  </script>
+</polymer-element>
+
+<polymer-element name="meteor-subscribe">
+  <script>
+    Polymer('meteor-subscribe', {
+      publish: {
+        handle: null,
+        name: "",
+        isready: false
+      },
+      nameChanged: function() {
+        if (this.handle) {
+          this.handle.stop();
+          this.handle = null;
+        }
+        if (this.name) {
+          var self = this;
+          self.handle = Meteor.subscribe(this.name);
+          //alert(self.handle);
+          Tracker.autorun(function() {
+            self.isready = self.handle.ready();
+          });
+        }
+      },
+      stop: function() {
+        this.handle.stop();
+        //this.handle = null;
+      },
+      ready: function() {
+      }
+    });
+  </script>
+</polymer-element>
+
+<!--polymer-element name="meteor-query">
+  <script>
+    Polymer('meteor-query', {
+      publish: {
         collection: null,
+        subscribe: null,
         ref: null,
         cursor: null,
+        handle: null,
         query: {}
       },
       observe: {
@@ -17,11 +67,30 @@
         }
       },
       refind: function() {
+        if (this.handle)
+          this.handle.stop();
         this.cursor = this.collection.find(this.query);
-        this.cursor.observe
+        this.handle = this.cursor.observe({
+        });
       },
       cursorChanged = function() {
+      }
+    });
+  </script>
+</polymer-element-->
 
+<polymer-element name="meteor-test">
+  <template>
+    <meteor-collection name="test" ref="{{cref}}"></meteor-collection>
+    <meteor-subscribe id="sub" name="testsub" isready="{{isready}}"></meteor-subscribe>
+    <h1>subscrition to test collection is {{isready}}</h1>
+  </template>
+  <script>
+    Polymer('meteor-test', {
+      cref: null,
+      ready: function() {
+        var self = this;
+        setTimeout(function() { self.$.sub.stop(); }, 3000);
       }
     });
   </script>
