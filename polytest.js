@@ -7,13 +7,16 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-  var test = new Mongo.Collection('test');
+  var Music = new Mongo.Collection('music');
 
-  if (test.find({}).count() < 1) {
-    test.insert({bla: "blo", bli: "blu"});
-  }
+  Meteor.publish('musics', function() {
+    return Music.find({},{fields: {artist: 1, album: 1, color: 1}});
+  });
 
-  Meteor.publish('testsub', function() {
-    return test.find({});
-  })
+  Meteor.publish('album', function(id) {
+    if (id)
+      return Music.find({_id: id},{fields: {tracks: 1}});
+    else
+      this.ready();
+  });
 }

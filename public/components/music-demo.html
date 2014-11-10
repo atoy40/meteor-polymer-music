@@ -1,3 +1,4 @@
+<link rel="import" href="meteor-collection.html">
 <link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 
 <polymer-element name="music-demo">
@@ -6,7 +7,7 @@
     <style>
       .chip-container {
         position: absolute;
-        top: 275px;
+        top: 75px;
         right: 0;
         left: 0;
         text-align: center;
@@ -33,7 +34,7 @@
         font-weight: bold;
       }
       #details {
-        padding: 200px 10% 0;
+        padding: 60px 10% 0;
       }
       .card {
         height: 400px;
@@ -59,6 +60,11 @@
         font-size: 2em;
       }
     </style>
+
+    <meteor-collection name="music" ref="{{cref}}"></meteor-collection>
+    <meteor-subscribe name="musics"></meteor-subscribe>
+    <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
+    <meteor-query id="query" collection="{{cref}}" options="{{options}}" data="{{items}}"></meteor-query>
 
     <core-animated-pages selected="{{page}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
 
@@ -93,6 +99,12 @@
               <div flex>
                 <div class="card-album-title">{{selectedAlbum.album}}</div>
                 <div class="card-album-artist">{{selectedAlbum.artist}}</div>
+                <h3>Tracks</h3>
+                <ol>
+                  <template repeat="{{selectedAlbum.tracks}}">
+                    <li>{{}}</li>
+                  </template>
+                </ol>
               </div>
             </div>
           </div>
@@ -108,32 +120,20 @@
 
       page: 0,
 
-      items: [{
-        artist: 'Tycho',
-        album: 'Fragments',
-        color: '#f4db33'
-      }, {
-        artist: 'Tycho',
-        album: 'Past Prologue',
-        color: '#972ff8'
-      }, {
-        artist: 'Tycho',
-        album: 'Spectre',
-        color: '#7dd6fe'
-      }, {
-        artist: 'Tycho',
-        album: 'Awake',
-        color: '#dc3c84'
-      }],
-
       selectedAlbum: null,
+
+      cref: null, // just to be able to play with collection in console with document.querySelector('music-demo').cref
+
+      options: {sort: {artist: 1}},
 
       transition: function(e) {
         if (this.page === 0 && e.target.templateInstance.model.item) {
           this.selectedAlbum = e.target.templateInstance.model.item;
+          this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
           this.page = 1;
         } else {
           this.page = 0;
+          this.$.subalbum.args = []; // unsubscribe to album
         }
       }
     });

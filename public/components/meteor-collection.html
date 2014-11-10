@@ -20,25 +20,36 @@
       publish: {
         handle: null,
         name: "",
+        args: [],
         isready: false
       },
-      nameChanged: function() {
+      observe: {
+        'name args': 'resub'
+      },
+      resub: function() {
         if (this.handle) {
           this.handle.stop();
           this.handle = null;
         }
+        if (this.computation) {
+          this.computation.stop();
+          this.computation = null;
+        }
+
         if (this.name) {
           var self = this;
-          self.handle = Meteor.subscribe(this.name);
-          //alert(self.handle);
-          Tracker.autorun(function() {
+          var callargs = this.args.slice(0);
+          callargs.unshift(this.name);
+          console.log(this.name+" => "+callargs.join());
+
+          this.handle = Meteor.subscribe.apply(null, callargs);
+          this.computation = Tracker.autorun(function() {
             self.isready = self.handle.ready();
           });
         }
       },
       stop: function() {
         this.handle.stop();
-        //this.handle = null;
       },
       ready: function() {
       }
@@ -46,51 +57,77 @@
   </script>
 </polymer-element>
 
-<!--polymer-element name="meteor-query">
+<polymer-element name="meteor-query">
   <script>
     Polymer('meteor-query', {
+      computation: null,
       publish: {
         collection: null,
-        subscribe: null,
-        ref: null,
-        cursor: null,
         handle: null,
-        query: {}
+        data: [],
+        query: {},
+        options: {}
       },
       observe: {
-        'ref query': 'refind'
-      },
-      collectionChanged: function() {
-        if (this.collection) {
-          this.ref = new Mongo.Collection(this.collection);
-          //Meteor.subscribe(this.collection);
-        }
+        'collection query options': 'refind'
       },
       refind: function() {
-        if (this.handle)
+        if (this.handle) {
           this.handle.stop();
-        this.cursor = this.collection.find(this.query);
-        this.handle = this.cursor.observe({
-        });
-      },
-      cursorChanged = function() {
-      }
-    });
-  </script>
-</polymer-element-->
+          this.handle = null;
+          this.data = [];
+        }
 
-<polymer-element name="meteor-test">
-  <template>
-    <meteor-collection name="test" ref="{{cref}}"></meteor-collection>
-    <meteor-subscribe id="sub" name="testsub" isready="{{isready}}"></meteor-subscribe>
-    <h1>subscrition to test collection is {{isready}}</h1>
-  </template>
-  <script>
-    Polymer('meteor-test', {
-      cref: null,
-      ready: function() {
-        var self = this;
-        setTimeout(function() { self.$.sub.stop(); }, 3000);
+        if (this.collection) {
+          var self = this;
+          var cursor = this.collection.find(this.query, this.options);
+          this.handle = cursor.observeChanges({
+            addedBefore: function(id, fields, before) {
+              // added _id
+              fields._id = id;
+              if (before == null) {
+                self.data.push(fields);
+                return;
+              } else {
+                var i = self._findIndex(before);
+                self.data.splice(i, 0, fields);
+              }
+            },
+            changed: function(id, fields) {
+              var entry = self.data[self._findIndex(id)];
+              for(var field in fields) {
+                if(fields[field] === undefined) {
+                  delete entry[field];
+                } else {
+                  entry[field] = fields[field];
+                }
+              }
+            },
+            movedBefore: function(id, before) {
+              var oldindex = self._findIndex(id);
+              var entry = self.data.splice(oldindex, 1)[0];
+
+              if (before) {
+                var newindex = self._findIndex(before);
+                self.data.splice(newindex, 0, entry);
+              } else {
+                self.data.push(entry);
+              }
+            },
+            removed: function(id) {
+              var index = self._findIndex(id);
+              self.data.splice(i, 1);
+            }
+          });
+        }
+      },
+      _findIndex: function(id) {
+        for (i = 0; i < this.data.length; i++) {
+          if (EJSON.equals(this.data[i]._id,id)) {
+            return i;
+          }
+        }
+        return -1;
       }
     });
   </script>
