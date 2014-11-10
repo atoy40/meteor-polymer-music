@@ -11,7 +11,7 @@ Polymer components :
 * meteor-subscribe : subscribe to a server publication
 * meteor-query : query and observe a collection
 
-They're used in the [music-demo](public/components/music-demo.html)
+They're used in the [music-app](public/components/music-app.html)
 components.
 
 Polymer meteor-x components are defined in
