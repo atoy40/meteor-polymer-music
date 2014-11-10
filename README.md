@@ -9,7 +9,11 @@ Polymer components :
 
 * meteor-collection : create a Mongo collection
 * meteor-subscribe : subscribe to a server publication
-* meteor-query : query a collection
+* meteor-query : query and observe a collection
 
 They're used in the [music-demo](public/components/music-demo.html)
 components.
+
+Polymer meteor-x components are defined in
+[meteor-collection.html](public/components/meteor-collection.html). This
+project is at a very early stage and a lot of features will be added.
