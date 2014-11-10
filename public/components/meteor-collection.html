@@ -27,20 +27,12 @@
         'name args': 'resub'
       },
       resub: function() {
-        if (this.handle) {
-          this.handle.stop();
-          this.handle = null;
-        }
-        if (this.computation) {
-          this.computation.stop();
-          this.computation = null;
-        }
+        this.stop();
 
         if (this.name) {
           var self = this;
           var callargs = this.args.slice(0);
           callargs.unshift(this.name);
-          console.log(this.name+" => "+callargs.join());
 
           this.handle = Meteor.subscribe.apply(null, callargs);
           this.computation = Tracker.autorun(function() {
@@ -49,7 +41,14 @@
         }
       },
       stop: function() {
-        this.handle.stop();
+        if (this.handle) {
+          this.handle.stop();
+          this.handle = null;
+        }
+        if (this.computation) {
+          this.computation.stop();
+          this.computation = null;
+        }
       },
       ready: function() {
       }

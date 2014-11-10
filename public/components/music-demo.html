@@ -34,7 +34,7 @@
         font-weight: bold;
       }
       #details {
-        padding: 60px 10% 0;
+        padding: 250px 10% 0;
       }
       .card {
         height: 400px;
@@ -62,11 +62,11 @@
     </style>
 
     <meteor-collection name="music" ref="{{cref}}"></meteor-collection>
-    <meteor-subscribe name="musics"></meteor-subscribe>
+    <meteor-subscribe name="albums"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" collection="{{cref}}" options="{{options}}" data="{{items}}"></meteor-query>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade" on-core-animated-pages-transition-end="{{complete}}">
 
       <section>
 
@@ -74,8 +74,8 @@
 
           <template repeat="{{items as item}}">
 
-            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}">
-              <div class="chip-top" style="background:{{item.color}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
+            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}" cross-fade?="{{selectedAlbum !== item }}">
+              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
               <div class="chip-bottom">
                 <div class="chip-album-title">{{item.album}}</div>
                 <div class="chip-artist">{{item.artist}}</div>
@@ -90,11 +90,11 @@
       <section id="details">
 
         <div class="card" layout horizontal hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}" hero on-tap="{{transition}}">
-          <div class="card-left" style="background:{{selectedAlbum.color}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
+          <div class="card-left" style="background:{{selectedAlbum.art}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
           <div class="card-right" flex>
             <div layout horizontal center>
               <div>
-                <div class="card-icon" style="background:{{selectedAlbum.color}};"></div>
+                <div class="card-icon" style="background:{{selectedAlbum.art}};"></div>
               </div>
               <div flex>
                 <div class="card-album-title">{{selectedAlbum.album}}</div>
