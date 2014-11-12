@@ -1,0 +1,14 @@
+<polymer-element name="meteor-status">
+  <script>
+    Polymer('meteor-status', {
+      publish: {
+        status: null,
+      },
+      ready: function() {
+        this.computation = Tracker.autorun(function() {
+          this.status = Meteor.status();
+        }.bind(this));
+      }
+    });
+  </script>
+</polymer-element>

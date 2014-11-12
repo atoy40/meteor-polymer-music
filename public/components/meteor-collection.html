@@ -30,14 +30,13 @@
         this.stop();
 
         if (this.name) {
-          var self = this;
           var callargs = this.args.slice(0);
           callargs.unshift(this.name);
 
           this.handle = Meteor.subscribe.apply(null, callargs);
           this.computation = Tracker.autorun(function() {
-            self.isready = self.handle.ready();
-          });
+            this.isready = this.handle.ready();
+          }.bind(this));
         }
       },
       stop: function() {
@@ -78,22 +77,20 @@
         }
 
         if (this.collection) {
-          var self = this;
-          var cursor = this.collection.find(this.query, this.options);
-          this.handle = cursor.observeChanges({
+          this.handle = this.collection.find(this.query, this.options).observeChanges({
             addedBefore: function(id, fields, before) {
               // added _id
               fields._id = id;
               if (before == null) {
-                self.data.push(fields);
+                this.data.push(fields);
                 return;
               } else {
-                var i = self._findIndex(before);
-                self.data.splice(i, 0, fields);
+                var i = this._findIndex(before);
+                this.data.splice(i, 0, fields);
               }
-            },
+            }.bind(this),
             changed: function(id, fields) {
-              var entry = self.data[self._findIndex(id)];
+              var entry = this.data[this._findIndex(id)];
               for(var field in fields) {
                 if(fields[field] === undefined) {
                   delete entry[field];
@@ -101,22 +98,22 @@
                   entry[field] = fields[field];
                 }
               }
-            },
+            }.bind(this),
             movedBefore: function(id, before) {
-              var oldindex = self._findIndex(id);
-              var entry = self.data.splice(oldindex, 1)[0];
+              var oldindex = this._findIndex(id);
+              var entry = this.data.splice(oldindex, 1)[0];
 
               if (before) {
-                var newindex = self._findIndex(before);
-                self.data.splice(newindex, 0, entry);
+                var newindex = this._findIndex(before);
+                this.data.splice(newindex, 0, entry);
               } else {
-                self.data.push(entry);
+                this.data.push(entry);
               }
-            },
+            }.bind(this),
             removed: function(id) {
-              var index = self._findIndex(id);
-              self.data.splice(i, 1);
-            }
+              var index = this._findIndex(id);
+              this.data.splice(i, 1);
+            }.bind(this)
           });
         }
       },
