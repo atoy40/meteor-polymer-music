@@ -4,6 +4,7 @@
 <link href="/bower_components/core-animated-pages/transitions/slide-down.html" rel="import">
 <link href="/bower_components/core-icons/core-icons.html" rel="import">
 <link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
+<link href="/bower_components/core-tooltip/core-tooltip.html" rel="import">
 <link href="/bower_components/paper-button/paper-button.html" rel="import">
 <link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
 <link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
@@ -97,10 +98,12 @@
       <section>
 
         <core-toolbar slide-down>
-          <h1>Music</h1>
+          <h1>MUSIC//LIBRARY</h1>
           <div flex></div>
           <paper-icon-button icon="add-circle-outline" on-tap={{openpopup}}></paper-icon-button>
-          <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
+          <core-tooltip label="{{status.status}}" position="left">
+            <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
+          </core-tooltip>
         </core-toolbar>
 
         <div class="chip-container" hero-p on-tap="{{transition}}">
@@ -190,7 +193,11 @@
       },
       rmalbum: function(e) {
         if (this.selectedAlbum) {
-          this.collection.remove({_id: this.selectedAlbum._id});
+          setTimeout(function() {
+            this.collection.remove({
+              _id: this.selectedAlbum._id
+            });
+          }.bind(this), 1000);
         }
       }
     });
