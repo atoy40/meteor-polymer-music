@@ -7,13 +7,12 @@ components.
 
 Polymer components :
 
-* meteor-collection : create a Mongo collection
-* meteor-subscribe : subscribe to a server publication
-* meteor-query : query and observe a collection
+* [meteor-status](public/components/meteor-status.html) : a reactive binding to Meteor.status()
+* [meteor-collection](public/components/meteor-collection.html) : create a Mongo collection
+* [meteor-subscribe](public/components/meteor-collection.html) : subscribe to a server publication
+* [meteor-query](public/components/meteor-collection.html) : query and observe a collection
 
 They're used in the [music-app](public/components/music-app.html)
 components.
 
-Polymer meteor-x components are defined in
-[meteor-collection.html](public/components/meteor-collection.html). This
-project is at a very early stage and a lot of features will be added.
+This project is at a very early stage and a lot of features will be added.
