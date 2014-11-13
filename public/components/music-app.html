@@ -4,6 +4,10 @@
 <link href="/bower_components/core-animated-pages/transitions/slide-down.html" rel="import">
 <link href="/bower_components/core-icons/core-icons.html" rel="import">
 <link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
+<link href="/bower_components/paper-button/paper-button.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
+<link href="/bower_components/paper-input/paper-input.html" rel="import">
 <link href="/bower_components/paper-icon-button/paper-icon-button.html" rel="import">
 
 <polymer-element name="music-app">
@@ -77,6 +81,17 @@
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" collection="{{collection}}" options="{{options}}" data="{{items}}"></meteor-query>
 
+    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
+      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
+      <paper-input id="newart" label="CSS color" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
+      <div layout horizontal>
+        <paper-button raised core-overlay-toggle>Cancel</paper-button>
+        <div flex></div>
+        <paper-button raised on-tap="{{createalbum}}">Create album</paper-button>
+      </div>
+    </paper-dialog>
+
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
 
       <section>
@@ -84,6 +99,7 @@
         <core-toolbar slide-down>
           <h1>Music</h1>
           <div flex></div>
+          <paper-icon-button icon="add-circle-outline" on-tap={{openpopup}}></paper-icon-button>
           <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
         </core-toolbar>
 
@@ -111,19 +127,24 @@
         <div class="card" layout horizontal hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}" hero on-tap="{{transition}}">
           <div class="card-left" style="background:{{selectedAlbum.art}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
           <div class="card-right" flex>
-            <div layout horizontal center>
-              <div>
-                <div class="card-icon" style="background:{{selectedAlbum.art}};"></div>
+            <div layout vertical>
+              <div layout horizontal>
+                <paper-icon-button icon="delete" on-tap="{{rmalbum}}"></paper-icon-button>
               </div>
-              <div flex>
-                <div class="card-album-title">{{selectedAlbum.album}}</div>
-                <div class="card-album-artist">{{selectedAlbum.artist}}</div>
-                <h3>Tracks</h3>
-                <ol>
-                  <template repeat="{{selectedAlbum.tracks}}">
-                    <li>{{}}</li>
-                  </template>
-                </ol>
+              <div layout horizontal center>
+                <div>
+                  <div class="card-icon" style="background:{{selectedAlbum.art}};"></div>
+                </div>
+                <div flex>
+                  <div class="card-album-title">{{selectedAlbum.album}}</div>
+                  <div class="card-album-artist">{{selectedAlbum.artist}}</div>
+                  <h3>Tracks</h3>
+                  <ol>
+                    <template repeat="{{selectedAlbum.tracks}}">
+                      <li>{{}}</li>
+                    </template>
+                  </ol>
+                </div>
               </div>
             </div>
           </div>
@@ -139,7 +160,11 @@
       page: 0,
       selectedAlbum: null,
       collection: null,
-      options: {sort: {artist: 1}},
+      options: {
+        sort: {
+          artist: 1
+        }
+      },
       transition: function(e) {
         if (this.page === 0 && e.target.templateInstance.model.item) {
           this.selectedAlbum = e.target.templateInstance.model.item;
@@ -148,6 +173,24 @@
         } else {
           this.page = 0;
           this.$.subalbum.args = []; // unsubscribe to album
+        }
+      },
+      openpopup: function(e) {
+        this.$.popup.opened = true;
+      },
+      createalbum: function(e) {
+        if (this.collection && this.status.connected) {
+          this.collection.insert({
+            artist: this.$.newartist.value,
+            album: this.$.newalbum.value,
+            art: this.$.newart.value
+          });
+          this.$.popup.opened = false;
+        }
+      },
+      rmalbum: function(e) {
+        if (this.selectedAlbum) {
+          this.collection.remove({_id: this.selectedAlbum._id});
         }
       }
     });

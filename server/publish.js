@@ -10,3 +10,9 @@ Meteor.publish('album', function(id) {
   else
     this.ready();
 });
+
+Music.allow({
+  insert: function(userId, doc) {
+    return true;
+  }
+});
