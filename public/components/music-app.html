@@ -1,13 +1,11 @@
 <link rel="import" href="meteor-status.html">
 <link rel="import" href="meteor-collection.html">
+<link rel="import" href="music-list.html">
+<link rel="import" href="music-album-card.html">
 <link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="/bower_components/core-animated-pages/transitions/slide-down.html" rel="import">
 <link href="/bower_components/core-icons/core-icons.html" rel="import">
-<link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
-<link href="/bower_components/core-tooltip/core-tooltip.html" rel="import">
 <link href="/bower_components/paper-button/paper-button.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
 <link href="/bower_components/paper-input/paper-input.html" rel="import">
 <link href="/bower_components/paper-icon-button/paper-icon-button.html" rel="import">
 
@@ -85,81 +83,15 @@
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" collection="{{collection}}" options="{{options}}" data="{{items}}"></meteor-query>
 
-    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
-      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
-      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
-      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
-      <paper-button dismissive>Cancel</paper-button>
-      <paper-button on-tap="{{createalbum}}" affirmative>Create album</paper-button>
-    </paper-dialog>
-
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
-
-      <section>
-
-        <core-toolbar slide-down>
-          <h1>MUSIC//LIBRARY</h1>
-          <div flex></div>
-          <paper-icon-button icon="add-circle-outline" on-tap={{openpopup}}></paper-icon-button>
-          <core-tooltip label="{{status.status}}" position="left">
-            <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
-          </core-tooltip>
-        </core-toolbar>
-
-        <div class="chip-container" hero-p on-tap="{{transition}}">
-
-          <template repeat="{{items as item}}">
-
-            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}" cross-fade?="{{selectedAlbum !== item }}">
-              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
-              <div class="chip-bottom">
-                <div class="chip-album-title">{{item.album}}</div>
-                <div class="chip-artist">{{item.artist}}</div>
-              </div>
-            </div>
-
-          </template>
-
-        </div>
-      </section>
-
-      <section id="details">
-
-        <paper-icon-button class="back-button" icon="arrow-back" on-tap="{{transition}}" cross-fade></paper-icon-button>
-
-        <div class="card" layout horizontal hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}" hero on-tap="{{transition}}">
-          <div class="card-left" style="background:{{selectedAlbum.art}};" hero-id="{{selectedAlbum.artist}}-{{selectedAlbum.album}}-art" hero></div>
-          <div class="card-right" flex>
-            <div layout vertical>
-              <div layout horizontal>
-                <paper-icon-button icon="delete" on-tap="{{rmalbum}}"></paper-icon-button>
-              </div>
-              <div layout horizontal center>
-                <div>
-                  <div class="card-icon" style="background:{{selectedAlbum.art}};"></div>
-                </div>
-                <div flex>
-                  <div class="card-album-title">{{selectedAlbum.album}}</div>
-                  <div class="card-album-artist">{{selectedAlbum.artist}}</div>
-                  <h3>Tracks</h3>
-                  <ol>
-                    <template repeat="{{selectedAlbum.tracks}}">
-                      <li>{{}}</li>
-                    </template>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
+      <music-list data="{{items}}" on-tap-album="{{transition}}"></music-list>
+      <music-album-card album="{{selectedAlbum}}" on-back="{{transition}}"></music-album-card>
     </core-animated-pages>
 
   </template>
   <script>
     Polymer('music-app', {
+      subready: false,
       page: 0,
       selectedAlbum: null,
       collection: null,
@@ -168,18 +100,20 @@
           artist: 1
         }
       },
+      /*/subreadyChanged: function() {
+        if (this.subready && this.collection) {
+          this.$.query.collection = this.collection;
+        }
+      },*/
       transition: function(e) {
-        if (this.page === 0 && e.target.templateInstance.model.item) {
-          this.selectedAlbum = e.target.templateInstance.model.item;
+        if (this.page === 0 && e.detail.album) {
+          this.selectedAlbum = e.detail.album;
           this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
           this.page = 1;
         } else {
           this.page = 0;
           this.$.subalbum.args = []; // unsubscribe to album
         }
-      },
-      openpopup: function(e) {
-        this.$.popup.opened = true;
       },
       createalbum: function(e) {
         if (this.collection && this.status.connected) {

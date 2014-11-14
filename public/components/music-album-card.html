@@ -1,0 +1,75 @@
+<polymer-element name="music-album-card">
+  <template>
+    <style>
+    .back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+      .card {
+        position: relative;
+        top: 100px;
+        height: 400px;
+        border-radius: 3px;
+        text-align: start;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      }
+      .card-left {
+        width: 400px;
+      }
+      .card-right {
+        padding: 24px;
+      }
+      .card-icon {
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        margin-right: 16px;
+      }
+      .card-album-title {
+        font-size: 2em;
+      }
+    </style>
+
+    <paper-icon-button class="back-button" icon="arrow-back" on-tap="{{transition}}" cross-fade></paper-icon-button>
+
+    <div class="card" layout horizontal hero-id="{{album.artist}}-{{album.album}}" hero on-tap="{{transition}}">
+      <div class="card-left" style="background:{{album.art}};" hero-id="{{album.artist}}-{{album.album}}-art" hero></div>
+      <div class="card-right" flex>
+        <div layout vertical>
+          <div layout horizontal>
+            <paper-icon-button icon="delete" on-tap="{{rmalbum}}"></paper-icon-button>
+          </div>
+          <div layout horizontal center>
+            <div>
+              <div class="card-icon" style="background:{{album.art}};"></div>
+            </div>
+            <div flex>
+              <div class="card-album-title">{{album.album}}</div>
+              <div class="card-album-artist">{{album.artist}}</div>
+              <h3>Tracks</h3>
+              <ol>
+                <template repeat="{{album.tracks}}">
+                  <li>{{}}</li>
+                </template>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer('music-album-card', {
+      publish: {
+        album: null,
+      },
+      transition: function() {
+        this.fire('back');
+      }
+    });
+  </script>
+</polymer-element>

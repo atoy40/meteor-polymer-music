@@ -1,0 +1,104 @@
+<link href="meteor-status.html" rel="import">
+<link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
+<link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
+<link href="/bower_components/core-tooltip/core-tooltip.html" rel="import">
+
+<polymer-element name="music-list">
+  <template>
+    <style>
+      .chip-container {
+        position: absolute;
+        top: 75px;
+        right: 0;
+        left: 0;
+        text-align: center;
+      }
+      .chip {
+        display: inline-block;
+        position: relative;
+        border-radius: 3px;
+        margin: 4px;
+        overflow: hidden;
+        text-align: start;
+        background-color: #fff;
+        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+      }
+      .chip-top {
+        width: 200px;
+        height: 200px;
+      }
+      .chip-bottom {
+        padding: 8px;
+        line-height: 1.5;
+      }
+      .chip-album-title {
+        font-weight: bold;
+      }
+    </style>
+
+    <meteor-status status="{{status}}"></meteor-status>
+
+    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
+      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
+      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
+      <paper-button dismissive>Cancel</paper-button>
+      <paper-button on-tap="{{createalbum}}" affirmative>Create album</paper-button>
+    </paper-dialog>
+
+    <core-toolbar slide-down>
+      <div>MUSIC//LIBRARY</div>
+      <span flex></span>
+      <paper-icon-button icon="add-circle-outline" on-tap={{openpopup}}></paper-icon-button>
+      <core-tooltip label="Meteor server: {{status.status}}" position="left">
+        <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
+      </core-tooltip>
+    </core-toolbar>
+
+    <core-animated-pages selected="{{selected}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+      <section>
+        <div class="chip-container" on-tap="{{transition}}">
+          <template repeat="{{data as item}}">
+            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}" cross-fade?="{{selectedAlbum !== item }}">
+              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
+              <div class="chip-bottom">
+                <div class="chip-album-title">{{item.album}}</div>
+                <div class="chip-artist">{{item.artist}}</div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <section>
+      </section>
+    </core-animated-pages>
+  </template>
+
+  <script>
+    Polymer('music-list', {
+      publish: {
+        data: null,
+        selectedAlbum: null,
+      },
+      transition: function(e) {
+        if (e.target.templateInstance.model.item) {
+          this.selectedAlbum = e.target.templateInstance.model.item;
+          this.fire('tap-album', {
+            album: this.selectedAlbum,
+          });
+        }
+      },
+      openpopup: function(e) {
+        this.$.popup.opened = true;
+      },
+      dataChanged: function() {
+        alert('datachanged: '+this.data);
+      },
+      complete: function() {
+      }
+    });
+  </script>
+</polymer-element>
