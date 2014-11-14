@@ -74,6 +74,9 @@
         top: 10px;
         left: 10px;
       }
+      paper-dialog paper-button {
+        color: #1e88e5;
+      }
     </style>
 
     <meteor-status status="{{status}}"></meteor-status>
@@ -85,12 +88,9 @@
     <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
       <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
       <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
-      <paper-input id="newart" label="CSS color" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
-      <div layout horizontal>
-        <paper-button raised core-overlay-toggle>Cancel</paper-button>
-        <div flex></div>
-        <paper-button raised on-tap="{{createalbum}}">Create album</paper-button>
-      </div>
+      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
+      <paper-button dismissive>Cancel</paper-button>
+      <paper-button on-tap="{{createalbum}}" affirmative>Create album</paper-button>
     </paper-dialog>
 
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
@@ -188,7 +188,6 @@
             album: this.$.newalbum.value,
             art: this.$.newart.value
           });
-          this.$.popup.opened = false;
         }
       },
       rmalbum: function(e) {
