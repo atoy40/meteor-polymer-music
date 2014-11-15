@@ -81,10 +81,10 @@
     <meteor-collection name="music" ref="{{collection}}"></meteor-collection>
     <meteor-subscribe name="albums" isready="{{subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
-    <meteor-query id="query" collection="{{collection}}" options="{{options}}" data="{{items}}"></meteor-query>
+    <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
 
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
-      <music-list data="{{items}}" on-tap-album="{{transition}}"></music-list>
+      <music-list id="list" data="{{items}}" on-tap-album="{{transition}}"></music-list>
       <music-album-card album="{{selectedAlbum}}" on-back="{{transition}}"></music-album-card>
     </core-animated-pages>
 
@@ -100,13 +100,15 @@
           artist: 1
         }
       },
-      /*/subreadyChanged: function() {
+      subreadyChanged: function() {
+        // wait subscribtion ready state before querying
         if (this.subready && this.collection) {
           this.$.query.collection = this.collection;
         }
-      },*/
+      },
       transition: function(e) {
         if (this.page === 0 && e.detail.album) {
+          this.$.list.disable = true;
           this.selectedAlbum = e.detail.album;
           this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
           this.page = 1;
@@ -131,6 +133,12 @@
               _id: this.selectedAlbum._id
             });
           }.bind(this), 1000);
+        }
+      },
+      complete: function() {
+        if (this.page === 0) {
+          // reactivate animated changes
+          this.$.list.disable = false;
         }
       }
     });

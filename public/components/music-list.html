@@ -51,18 +51,19 @@
     <core-toolbar slide-down>
       <div>MUSIC//LIBRARY</div>
       <span flex></span>
-      <paper-icon-button icon="add-circle-outline" on-tap={{openpopup}}></paper-icon-button>
+      <paper-icon-button icon="add-circle-outline" on-tap={{openPopup}}></paper-icon-button>
       <core-tooltip label="Meteor server: {{status.status}}" position="left">
         <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
       </core-tooltip>
     </core-toolbar>
 
-    <core-animated-pages selected="{{selected}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+    <core-animated-pages id="pages" selected="{{selected}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+
       <section>
         <div class="chip-container" on-tap="{{transition}}">
-          <template repeat="{{data as item}}">
-            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{selectedAlbum === item }}" cross-fade?="{{selectedAlbum !== item }}">
-              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{selectedAlbum === item}}"></div>
+          <template repeat="{{items1 as item}}">
+            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{(selectedAlbum === item && selected === 0) || !disable }}" cross-fade?="{{selectedAlbum !== item && disable}}">
+              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{(selectedAlbum === item && selected === 0) || !disable}}"></div>
               <div class="chip-bottom">
                 <div class="chip-album-title">{{item.album}}</div>
                 <div class="chip-artist">{{item.artist}}</div>
@@ -73,13 +74,27 @@
       </section>
 
       <section>
+        <div class="chip-container" on-tap="{{transition}}">
+          <template repeat="{{items2 as item}}">
+            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{(selectedAlbum === item && selected === 1) || !disable}}" cross-fade?="{{selectedAlbum !== item && disable}}">
+              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{(selectedAlbum === item && selected === 1) || !disable }}"></div>
+              <div class="chip-bottom">
+                <div class="chip-album-title">{{item.album}}</div>
+                <div class="chip-artist">{{item.artist}}</div>
+              </div>
+            </div>
+          </template>
+        </div>
       </section>
+
     </core-animated-pages>
   </template>
 
   <script>
     Polymer('music-list', {
+      selected: 0,
       publish: {
+        disable: false,
         data: null,
         selectedAlbum: null,
       },
@@ -91,13 +106,38 @@
           });
         }
       },
-      openpopup: function(e) {
+      openPopup: function(e) {
         this.$.popup.opened = true;
       },
       dataChanged: function() {
-        alert('datachanged: '+this.data);
+        //alert('datachanged: '+this.data);
+
+        if (this.$.pages.transitioning.length > 0 || this.disable) {
+          this.hasChanged = true;
+        } else {
+          this.swapPage();
+        }
+      },
+      swapPage: function() {
+        if (this.selected || !this.items1) {
+          this.items1 = this.data.slice();
+        }
+        if (!this.selected || !this.items2) {
+          this.items2 = this.data.slice();
+        }
+
+        this.selected = this.selected ? 0 : 1;
+      },
+      disableChanged: function() {
+        if (!this.disable) {
+          this.complete();
+        }
       },
       complete: function() {
+        if (this.hasChanged) {
+          this.swapPage();
+          this.hasChanged = false;
+        }
       }
     });
   </script>
