@@ -40,7 +40,7 @@
       <div class="card-right" flex>
         <div layout vertical>
           <div layout horizontal>
-            <paper-icon-button icon="delete" on-tap="{{rmalbum}}"></paper-icon-button>
+            <paper-icon-button icon="delete" on-tap="{{delete}}"></paper-icon-button>
           </div>
           <div layout horizontal center>
             <div>
@@ -66,8 +66,13 @@
     Polymer('music-album-card', {
       publish: {
         album: null,
+        collection: null
       },
       transition: function() {
+        this.fire('back');
+      },
+      delete: function() {
+        this.collection.remove(this.album._id);
         this.fire('back');
       }
     });

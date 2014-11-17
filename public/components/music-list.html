@@ -40,18 +40,10 @@
 
     <meteor-status status="{{status}}"></meteor-status>
 
-    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
-      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
-      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
-      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
-      <paper-button dismissive>Cancel</paper-button>
-      <paper-button on-tap="{{createalbum}}" affirmative>Create album</paper-button>
-    </paper-dialog>
-
     <core-toolbar slide-down>
       <div>MUSIC//LIBRARY</div>
       <span flex></span>
-      <paper-icon-button icon="add-circle-outline" on-tap={{openPopup}}></paper-icon-button>
+      <paper-icon-button icon="add-circle-outline" on-tap={{newAlbum}}></paper-icon-button>
       <core-tooltip label="Meteor server: {{status.status}}" position="left">
         <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
       </core-tooltip>
@@ -106,8 +98,8 @@
           });
         }
       },
-      openPopup: function(e) {
-        this.$.popup.opened = true;
+      newAlbum: function(e) {
+        this.fire('new-album');
       },
       dataChanged: function() {
         //alert('datachanged: '+this.data);

@@ -13,65 +13,6 @@
   <template>
 
     <style>
-      .chip-container {
-        position: absolute;
-        top: 75px;
-        right: 0;
-        left: 0;
-        text-align: center;
-      }
-      .chip {
-        display: inline-block;
-        position: relative;
-        border-radius: 3px;
-        margin: 4px;
-        overflow: hidden;
-        text-align: start;
-        background-color: #fff;
-        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
-      }
-      .chip-top {
-        width: 200px;
-        height: 200px;
-      }
-      .chip-bottom {
-        padding: 8px;
-        line-height: 1.5;
-      }
-      .chip-album-title {
-        font-weight: bold;
-      }
-      #details {
-        padding: 150px 10% 0;
-      }
-      .card {
-        height: 400px;
-        border-radius: 3px;
-        text-align: start;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-      }
-      .card-left {
-        width: 400px;
-      }
-      .card-right {
-        padding: 24px;
-      }
-      .card-icon {
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        margin-right: 16px;
-      }
-      .card-album-title {
-        font-size: 2em;
-      }
-      .back-button {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-      }
       paper-dialog paper-button {
         color: #1e88e5;
       }
@@ -83,9 +24,17 @@
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
 
+    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
+      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
+      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
+      <paper-button dismissive>Cancel</paper-button>
+      <paper-button on-tap="{{createAlbum}}" affirmative>Create album</paper-button>
+    </paper-dialog>
+
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
-      <music-list id="list" data="{{items}}" on-tap-album="{{transition}}"></music-list>
-      <music-album-card album="{{selectedAlbum}}" on-back="{{transition}}"></music-album-card>
+      <music-list id="list" data="{{items}}" on-tap-album="{{transition}}" on-new-album="{{openPopup}}"></music-list>
+      <music-album-card album="{{selectedAlbum}}" collection="{{collection}}" on-back="{{transition}}"></music-album-card>
     </core-animated-pages>
 
   </template>
@@ -117,22 +66,16 @@
           this.$.subalbum.args = []; // unsubscribe to album
         }
       },
-      createalbum: function(e) {
+      openPopup: function(e) {
+        this.$.popup.opened = true;
+      },
+      createAlbum: function(e) {
         if (this.collection && this.status.connected) {
           this.collection.insert({
             artist: this.$.newartist.value,
             album: this.$.newalbum.value,
             art: this.$.newart.value
           });
-        }
-      },
-      rmalbum: function(e) {
-        if (this.selectedAlbum) {
-          setTimeout(function() {
-            this.collection.remove({
-              _id: this.selectedAlbum._id
-            });
-          }.bind(this), 1000);
         }
       },
       complete: function() {
