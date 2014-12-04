@@ -1,9 +1,8 @@
 <link href="meteor-status.html" rel="import">
 <link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
 <link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
 <link href="/bower_components/core-tooltip/core-tooltip.html" rel="import">
+<link href="/bower_components/paper-icon-button/paper-icon-button.html" rel="import">
 
 <polymer-element name="music-list">
   <template>
@@ -102,8 +101,6 @@
         this.fire('new-album');
       },
       dataChanged: function() {
-        //alert('datachanged: '+this.data);
-
         if (this.$.pages.transitioning.length > 0 || this.disable) {
           this.hasChanged = true;
         } else {
