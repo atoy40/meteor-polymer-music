@@ -6,7 +6,7 @@
 <link href="/bower_components/core-animated-pages/transitions/slide-down.html" rel="import">
 <link href="/bower_components/core-icons/core-icons.html" rel="import">
 <link href="/bower_components/paper-button/paper-button.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-action-dialog.html" rel="import">
 <link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
 <link href="/bower_components/paper-input/paper-input.html" rel="import">
 
@@ -26,13 +26,15 @@
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
 
-    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+    <paper-action-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+      <div layout vertical>
       <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
       <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
       <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
+    </div>
       <paper-button dismissive>Cancel</paper-button>
       <paper-button on-tap="{{createAlbum}}" affirmative>Create album</paper-button>
-    </paper-dialog>
+    </paper-action-dialog>
 
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
       <music-list id="list" data="{{items}}" on-tap-album="{{transition}}" on-new-album="{{openPopup}}"></music-list>
