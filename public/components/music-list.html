@@ -1,133 +1,324 @@
 <link href="meteor-status.html" rel="import">
-<link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
-<link href="/bower_components/core-toolbar/core-toolbar.html" rel="import">
-<link href="/bower_components/core-tooltip/core-tooltip.html" rel="import">
-<link href="/bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link rel="import" href="/bower_components/neon-animation/neon-animatable-behavior.html">
+<link rel="import" href="/bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/cascaded-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/transform-animation.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/animations/hero-animation.html">
+<link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html">
+<!--link href="/bower_components/core-tooltip/core-tooltip.html" rel="import"-->
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 
-<polymer-element name="music-list">
+<dom-module id="music-list-page">
+  <style>
+  .chip-container {
+    position: absolute;
+    top: 75px;
+    right: 0;
+    left: 0;
+    text-align: center;
+  }
+  </style>
   <template>
-    <style>
-      .chip-container {
-        position: absolute;
-        top: 75px;
-        right: 0;
-        left: 0;
-        text-align: center;
+    <div class="chip-container">
+      <content></content>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: "music-list-page",
+  properties: {
+    animationConfig: {
+      value: function() {
+        return {
+          'entry': [],
+          'exit': []
+        }
       }
-      .chip {
-        display: inline-block;
-        position: relative;
-        border-radius: 3px;
-        margin: 4px;
-        overflow: hidden;
-        text-align: start;
-        background-color: #fff;
-        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
-      }
-      .chip-top {
-        width: 200px;
-        height: 200px;
-      }
-      .chip-bottom {
-        padding: 8px;
-        line-height: 1.5;
-      }
-      .chip-album-title {
-        font-weight: bold;
-      }
-    </style>
+    },
+  },
+  behaviors: [ Polymer.NeonAnimatableBehavior ],
+});
+</script>
+
+
+
+<dom-module id="music-list">
+  <style>
+  .chip {
+    display: inline-block;
+    position: relative;
+    border-radius: 3px;
+    margin: 4px;
+    overflow: hidden;
+    text-align: start;
+    background-color: #fff;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
+  }
+  .chip-top {
+    width: 200px;
+    height: 200px;
+  }
+  .chip-bottom {
+    padding: 8px;
+    line-height: 1.5;
+  }
+  .chip-album-title {
+    font-weight: bold;
+  }
+  </style>
+
+  <template>
 
     <meteor-status status="{{status}}"></meteor-status>
 
-    <core-toolbar slide-down>
+    <paper-toolbar id="toolbar">
       <div>MUSIC//LIBRARY</div>
-      <span flex></span>
-      <paper-icon-button icon="add-circle-outline" on-tap={{newAlbum}}></paper-icon-button>
-      <core-tooltip label="Meteor server: {{status.status}}" position="left">
-        <core-icon icon="{{status.connected ? 'cloud-done' : 'cloud-off'}}"></core-icon>
-      </core-tooltip>
-    </core-toolbar>
+      <span class="flex"></span>
+      <paper-icon-button icon="add-circle-outline" on-tap="newAlbum"></paper-icon-button>
+      <paper-icon-button icon="{{_getStatusIcon(status)}}"></paper-icon-button>
+    </paper-toolbar>
 
-    <core-animated-pages id="pages" selected="{{selected}}" transitions="hero-transition" on-core-animated-pages-transition-end="{{complete}}">
+    <neon-animated-pages id="pages" selected="{{selected}}" on-neon-animation-finish="complete">
 
-      <section>
-        <div class="chip-container" on-tap="{{transition}}">
-          <template repeat="{{items1 as item}}">
-            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{(selectedAlbum === item && selected === 0) || !disable }}" cross-fade?="{{selectedAlbum !== item && disable}}">
-              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{(selectedAlbum === item && selected === 0) || !disable}}"></div>
-              <div class="chip-bottom">
-                <div class="chip-album-title">{{item.album}}</div>
-                <div class="chip-artist">{{item.artist}}</div>
-              </div>
+      <music-list-page id="page0">
+        <template is="dom-repeat" items="{{items1}}">
+          <div class="chip" hero-id$="{{item._id}}" on-tap="_onTapAlbum">
+            <div class="chip-top" style$="{{_computeChipStyle(item)}}"></div>
+            <div class="chip-bottom">
+              <div class="chip-album-title">{{item.album}}</div>
+              <div class="chip-artist">{{item.artist}}</div>
             </div>
-          </template>
-        </div>
-      </section>
+          </div>
+        </template>
+      </music-list-page>
 
-      <section>
-        <div class="chip-container" on-tap="{{transition}}">
-          <template repeat="{{items2 as item}}">
-            <div class="chip" hero-id="{{item.artist}}-{{item.album}}" hero?="{{(selectedAlbum === item && selected === 1) || !disable}}" cross-fade?="{{selectedAlbum !== item && disable}}">
-              <div class="chip-top" style="background:{{item.art}};" hero-id="{{item.artist}}-{{item.album}}-art" hero?="{{(selectedAlbum === item && selected === 1) || !disable }}"></div>
-              <div class="chip-bottom">
-                <div class="chip-album-title">{{item.album}}</div>
-                <div class="chip-artist">{{item.artist}}</div>
-              </div>
+      <music-list-page id="page1">
+        <template is="dom-repeat" items="{{items2}}">
+          <div class="chip" hero-id$="{{item._id}}" on-tap="_onTapAlbum">
+            <div class="chip-top" style$="{{_computeChipStyle(item)}}"></div>
+            <div class="chip-bottom">
+              <div class="chip-album-title">{{item.album}}</div>
+              <div class="chip-artist">{{item.artist}}</div>
             </div>
-          </template>
-        </div>
-      </section>
+          </div>
+        </template>
+      </music-list-page>
 
-    </core-animated-pages>
+    </neon-animated-pages>
   </template>
 
-  <script>
-    Polymer('music-list', {
-      selected: 0,
-      publish: {
-        disable: false,
-        data: null,
-        selectedAlbum: null,
-      },
-      transition: function(e) {
-        if (e.target.templateInstance.model.item) {
-          this.selectedAlbum = e.target.templateInstance.model.item;
-          this.fire('tap-album', {
-            album: this.selectedAlbum,
-          });
-        }
-      },
-      newAlbum: function(e) {
-        this.fire('new-album');
-      },
-      dataChanged: function() {
-        if (this.$.pages.transitioning.length > 0 || this.disable) {
-          this.hasChanged = true;
-        } else {
-          this.swapPage();
-        }
-      },
-      swapPage: function() {
-        if (this.selected || !this.items1) {
-          this.items1 = this.data.slice();
-        }
-        if (!this.selected || !this.items2) {
-          this.items2 = this.data.slice();
-        }
+</dom-module>
 
-        this.selected = this.selected ? 0 : 1;
+<script>
+  Polymer({
+    is:'music-list',
+    behaviors: [ Polymer.NeonSharedElementAnimatableBehavior ],
+    properties: {
+      selected: {
+        value: 0,
       },
-      disableChanged: function() {
-        if (!this.disable) {
-          this.complete();
+      animationConfig: {
+        value: function() {
+          return {
+            'entry': [{
+              name: 'slide-down-animation',
+              node: this.$.toolbar
+            }],
+            'exit': [{
+              name: 'slide-up-animation',
+              node: this.$.toolbar
+            }]
+          }
         }
       },
-      complete: function() {
-        if (this.hasChanged) {
-          this.swapPage();
-          this.hasChanged = false;
-        }
+      disable: {
+        type: Boolean,
+        value: false,
+        observer: 'disableChanged'
+      },
+      data: {
+        type: Array,
+      },
+      items1: {
+        type: Array
+      },
+      items2: {
+        type: Array
+      },
+      selectedAlbum: Object,
+    },
+    observers: [
+      '_dataChanged(data.splices)',
+    ],
+    _getStatusIcon: function(status) {
+      return status && status.connected ? 'cloud-done' : 'cloud-off';
+    },
+    _computeChipStyle: function(item) {
+      return "background: "+item.art+";";
+    },
+    _onTapAlbum: function(e) {
+      var node;
+      for(node = e.target; !node.classList.contains('chip'); node = Polymer.dom(node).parentNode );;
+
+      if (e.model && e.model.item) {
+        this.selectedAlbum = e.model.item;
+
+        /*this.animationConfig.exit.push({
+          name: 'hero-animation',
+          id: 'hero2',
+          fromPage: this,
+        });*/
+        this.animationConfig.exit.push({
+          name: 'hero-animation',
+          id: 'hero',
+          fromPage: this,
+        });
+        this.animationConfig.entry.push({
+          name: 'hero-animation',
+          id: 'hero',
+          toPage: this,
+        });
+
+        //this.sharedElements['hero2'] = Polymer.dom(node).querySelector('.chip-bottom');
+        this.sharedElements['hero'] = Polymer.dom(node).querySelector('.chip-top');
+
+        this.fire('tap-album', {
+          album: this.selectedAlbum,
+        });
       }
-    });
-  </script>
-</polymer-element>
+    },
+    newAlbum: function(e) {
+      this.fire('new-album');
+    },
+    _dataChanged: function() {
+      if (this.disable || Polymer.dom(this.$.pages).querySelectorAll('.neon-animating').length > 0) {
+        this.hasChanged = true;
+      } else {
+        this.debounce("swap", this.swapPage);
+      }
+    },
+    swapPage: function() {
+
+      var firstLoad = !this.items1 && !this.items2;
+
+      if (this.selected || !this.items1) {
+        this.items1 = firstLoad ? [] : this.data.slice();
+      }
+      if (!this.selected || !this.items2) {
+        this.items2 = this.data.slice();
+      }
+
+      if (firstLoad) {
+        this.async(function() {
+          this._cascadePage();
+          this.selected = 1;
+        }.bind(this));
+        return;
+      }
+
+      this.async(function() {
+        this._configureAnimation();
+        this.selected = this.selected ? 0 : 1;
+        console.log("swap page to "+this.selected);
+      }.bind(this), 50);
+    },
+    _cascadePage: function(items) {
+      var chips =  Polymer.dom(this.$.page1).querySelectorAll("div.chip");
+
+      this.$.page1.animationConfig.entry = [
+        {
+          name: 'cascaded-animation',
+          animation: 'transform-animation',
+          transformFrom: 'scale(0.6,0.6)',
+          nodes: chips,
+          nodedelay: 100
+        },
+        {
+          name: 'cascaded-animation',
+          animation: 'fade-in-animation',
+          nodes: chips,
+          nodedelay: 100
+        }
+      ];
+    },
+    _prepareAnimationConfig: function(page, items, otherPageIds, isCurrent) {
+      items.forEach(function(value) {
+        var element = Polymer.dom(page).querySelector("div[hero-id='"+value._id+"']");
+
+        if (isCurrent) {
+          if (otherPageIds.indexOf(value._id) != -1) {
+            page.animationConfig.exit.push({
+              name: 'hero-animation',
+              id: value._id,
+              fromPage: page
+            });
+            page.sharedElements[value._id] = element;
+          } else {
+            page.animationConfig.exit.push({
+              name: 'fade-out-animation',
+              node: element,
+            });
+            page.animationConfig.exit.push({
+              name: 'transform-animation',
+              transformTo: 'scale(0.6,0.6)',
+              transformOrigin: "50% 50%",
+              node: element,
+            });
+          }
+        } else {
+          if (otherPageIds.indexOf(value._id) != -1) {
+            page.animationConfig.entry.push({
+              name: 'hero-animation',
+              id: value._id,
+              toPage: page
+            });
+            page.sharedElements[value._id] = element;
+          } else {
+            page.animationConfig.entry.push({
+              name: 'fade-in-animation',
+              node: element,
+              timing: { delay: 250 }
+            });
+            page.animationConfig.entry.push({
+              name: 'slide-down-animation',
+              node: element,
+              timing: { delay: 250 }
+            });
+          }
+        }
+      }.bind(this));
+    },
+    _configureAnimation: function() {
+      var items1Id = this.items1.map(function(value) { return value._id; });
+      var items2Id = this.items2.map(function(value) { return value._id; });
+
+      this.$.page0.animationConfig.entry = [];
+      this.$.page1.animationConfig.entry = [];
+      this.$.page0.animationConfig.exit = [];
+      this.$.page1.animationConfig.exit = [];
+      this.$.page0.sharedElements = {};
+      this.$.page1.sharedElements = {};
+
+      this._prepareAnimationConfig(this.$.page0, this.items1, items2Id, !this.selected);
+      this._prepareAnimationConfig(this.$.page1, this.items2, items1Id, this.selected);
+    },
+    disableChanged: function() {
+      if (!this.disable) {
+        this.complete();
+      }
+    },
+    complete: function() {
+      if (this.hasChanged) {
+        this.debounce("swap", this.swapPage);
+        this.hasChanged = false;
+      }
+    }
+  });
+</script>

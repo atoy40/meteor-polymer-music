@@ -1,93 +1,96 @@
+<link href="/bower_components/iron-icons/iron-icons.html" rel="import">
+<link href="/bower_components/neon-animation/neon-animated-pages.html" rel="import">
+<link href="/bower_components/paper-button/paper-button.html" rel="import">
+<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
+<link href="/bower_components/paper-input/paper-input.html" rel="import">
 <link rel="import" href="meteor-status.html">
 <link rel="import" href="meteor-collection.html">
 <link rel="import" href="music-list.html">
 <link rel="import" href="music-album-card.html">
-<link href="/bower_components/core-animated-pages/core-animated-pages.html" rel="import">
-<link href="/bower_components/core-animated-pages/transitions/slide-down.html" rel="import">
-<link href="/bower_components/core-icons/core-icons.html" rel="import">
-<link href="/bower_components/paper-button/paper-button.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-action-dialog.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog-transition.html" rel="import">
-<link href="/bower_components/paper-input/paper-input.html" rel="import">
 
 
-<polymer-element name="music-app">
+<dom-module id="music-app">
+
+  <style>
+  paper-dialog paper-button {
+    color: #1e88e5;
+  }
+  </style>
+
   <template>
-
-    <style>
-      paper-dialog paper-button {
-        color: #1e88e5;
-      }
-    </style>
-
     <meteor-status status="{{status}}"></meteor-status>
     <meteor-collection name="music" ref="{{collection}}"></meteor-collection>
     <meteor-subscribe name="albums" isready="{{subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
 
-    <paper-action-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
+    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
       <div layout vertical>
       <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
       <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
       <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
     </div>
-      <paper-button dismissive>Cancel</paper-button>
-      <paper-button on-tap="{{createAlbum}}" affirmative>Create album</paper-button>
-    </paper-action-dialog>
+      <paper-button dialog-dismiss>Cancel</paper-button>
+      <paper-button on-tap="createAlbum" dialog-confirm>Create album</paper-button>
+    </paper-dialog>
 
-    <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade slide-down" on-core-animated-pages-transition-end="{{complete}}">
-      <music-list id="list" data="{{items}}" on-tap-album="{{transition}}" on-new-album="{{openPopup}}"></music-list>
-      <music-album-card album="{{selectedAlbum}}" collection="{{collection}}" on-back="{{transition}}"></music-album-card>
-    </core-animated-pages>
+    <neon-animated-pages selected="{{page}}" on-neon-animation-finish="complete">
+      <music-list id="list" data="{{items}}" on-tap-album="transition" on-new-album="openPopup"></music-list>
+      <music-album-card album="{{selectedAlbum}}" collection="{{collection}}" on-back="transition"></music-album-card>
+    </neon-animated-pages>
 
   </template>
-  <script>
-    Polymer('music-app', {
-      subready: false,
-      page: 0,
-      selectedAlbum: null,
-      collection: null,
-      options: {
-        sort: {
-          artist: 1
-        }
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'music-app',
+    properties: {
+      subready: {
+        type: Boolean,
+        value: false,
+        observer: '_subreadyChanged'
       },
-      subreadyChanged: function() {
-        // wait subscribtion ready state before querying
-        if (this.subready && this.collection) {
-          this.$.query.collection = this.collection;
-        }
-      },
-      transition: function(e) {
-        if (this.page === 0 && e.detail.album) {
-          this.$.list.disable = true;
-          this.selectedAlbum = e.detail.album;
-          this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
-          this.page = 1;
-        } else {
-          this.page = 0;
-          this.$.subalbum.args = []; // unsubscribe to album
-        }
-      },
-      openPopup: function(e) {
-        this.$.popup.opened = true;
-      },
-      createAlbum: function(e) {
-        if (this.collection && this.status.connected) {
-          this.collection.insert({
-            artist: this.$.newartist.value,
-            album: this.$.newalbum.value,
-            art: this.$.newart.value
-          });
-        }
-      },
-      complete: function() {
-        if (this.page === 0) {
-          // reactivate animated changes
-          this.$.list.disable = false;
-        }
+    },
+    _subreadyChanged: function(subready) {
+      // wait subscribtion ready state before querying
+      if (this.subready && this.collection) {
+        this.$.query.collection = this.collection;
       }
-    });
-  </script>
-</polymer-element>
+    },
+    transition: function(e) {
+      if (this.page === 0 && e.detail.album) {
+        this.$.list.disable = true;
+        this.selectedAlbum = e.detail.album;
+        this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
+        this.page = 1;
+      } else {
+        this.page = 0;
+        this.$.subalbum.args = []; // unsubscribe to album
+      }
+    },
+    openPopup: function(e) {
+      //this.page = 1;
+      this.$.popup.opened = true;
+    },
+    createAlbum: function(e) {
+      if (this.collection && this.status.connected) {
+        this.collection.insert({
+          artist: this.$.newartist.value,
+          album: this.$.newalbum.value,
+          art: this.$.newart.value
+        });
+      }
+    },
+    complete: function() {
+      if (this.page === 0) {
+        // reactivate animated changes
+        this.$.list.disable = false;
+      }
+    },
+    ready: function() {
+      this.page = 0;
+      this.options = { sort: { artist: 1 } };
+    }
+  });
+</script>

@@ -1,146 +1,182 @@
-<polymer-element name="meteor-collection">
-  <script>
-    Polymer('meteor-collection', {
-      publish: {
-        name: null,
-        ref: null,
-      },
-      nameChanged: function() {
-        if (this.name) {
-          this.ref = new Mongo.Collection(this.name);
-        }
-      },
-    });
-  </script>
-</polymer-element>
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="meteor-subscribe">
-  <script>
-    Polymer('meteor-subscribe', {
-      publish: {
-        handle: null,
-        name: "",
-        args: [],
-        isready: false
+<script>
+  Polymer({
+    is: 'meteor-collection',
+    properties: {
+      name: {
+        type: String,
+        value: null,
+        observer: 'nameChanged'
       },
-      observe: {
-        'name args': 'resub'
-      },
-      resub: function() {
-        this.stop();
-
-        if (this.name) {
-          var callargs = this.args.slice(0);
-          callargs.unshift(this.name);
-
-          this.handle = Meteor.subscribe.apply(null, callargs);
-          this.computation = Tracker.autorun(function() {
-            this.isready = this.handle.ready();
-          }.bind(this));
-        }
-      },
-      stop: function() {
-        if (this.handle) {
-          this.handle.stop();
-          this.handle = null;
-        }
-        if (this.computation) {
-          this.computation.stop();
-          this.computation = null;
-        }
-      },
-      ready: function() {
+      ref: {
+        type: Object,
+        value: null,
+        notify: true
       }
-    });
-  </script>
-</polymer-element>
-
-<polymer-element name="meteor-query">
-  <script>
-    Polymer('meteor-query', {
-      computation: null,
-      publish: {
-        data: null,
-        collection: null,
-        handle: null,
-        query: {},
-        options: {}
-      },
-      observe: {
-        'collection query options': 'refind'
-      },
-      refind: function() {
-        if (this.handle) {
-          this.handle.stop();
-          this.handle = null;
-        }
-
-        if (this.collection) {
-          this.data = [];
-          this.initialdata = [];
-          this.initdone = false;
-
-          this.handle = this.collection.find(this.query, this.options).observeChanges({
-            addedBefore: function(id, fields, before) {
-              // added _id
-              fields._id = id;
-              if (before == null) {
-                if (this.initdone) {
-                  this.data.push(fields);
-                } else {
-                  this.initialdata.push(fields);
-                }
-              } else {
-                if (this.initdone) {
-                  var i = this._findIndex(this.data, before);
-                  this.data.splice(i, 0, fields);
-                } else {
-                  var i = this._findIndex(this.initData, before);
-                  this.initdata.splice(i, 0, fields);
-                }
-              }
-            }.bind(this),
-            changed: function(id, fields) {
-              var entry = this.data[this._findIndex(this.data, id)];
-              for(var field in fields) {
-                if(fields[field] === undefined) {
-                  delete entry[field];
-                } else {
-                  entry[field] = fields[field];
-                }
-              }
-            }.bind(this),
-            movedBefore: function(id, before) {
-              var oldindex = this._findIndex(this.data, id);
-              var entry = this.data.splice(oldindex, 1)[0];
-
-              if (before) {
-                var newindex = this._findIndex(this.data, before);
-                this.data.splice(newindex, 0, entry);
-              } else {
-                this.data.push(entry);
-              }
-            }.bind(this),
-            removed: function(id) {
-              var index = this._findIndex(this.data, id);
-              this.data.splice(i, 1);
-            }.bind(this)
-          });
-
-          // push initial data as observeChanges returns.
-          this.initdone = true;
-          this.data = this.initialdata;
-          this.initialdata = null;
-        }
-      },
-      _findIndex: function(data, id) {
-        for (i = 0; i < data.length; i++) {
-          if (EJSON.equals(data[i]._id,id)) {
-            return i;
-          }
-        }
-        return -1;
+    },
+    nameChanged: function() {
+      if (this.name) {
+        this.ref = new Mongo.Collection(this.name);
       }
-    });
-  </script>
-</polymer-element>
+    },
+  });
+</script>
+
+<script>
+  Polymer({
+    is: 'meteor-subscribe',
+    properties: {
+      handle: {
+        type: Object,
+        value: null
+      },
+      args: {
+        type: Array,
+        value: function() { return []; },
+      },
+      name: {
+        type: String,
+        value: ""
+      },
+      isready: {
+        type: Boolean,
+        value: false,
+        notify: true
+      }
+    },
+    observers: [ 'resub(name, args)' ],
+    resub: function(name, args) {
+      //console.log("(re)subscribe meteor-subscribe "+name+" "+args);
+      this.stop();
+
+      if (this.name) {
+        var callargs = this.args.slice(0);
+        callargs.unshift(this.name);
+
+        this.handle = Meteor.subscribe.apply(null, callargs);
+        this.computation = Tracker.autorun(function() {
+          this.isready = this.handle.ready();
+        }.bind(this));
+      }
+    },
+    stop: function() {
+      if (this.handle) {
+        this.handle.stop();
+        this.handle = null;
+      }
+      if (this.computation) {
+        this.computation.stop();
+        this.computation = null;
+      }
+    },
+    ready: function() {
+    }
+  });
+</script>
+
+<script>
+  Polymer({
+    is: 'meteor-query',
+    computation: null,
+    properties: {
+      data: {
+        type: Array,
+        notify: true,
+      },
+      collection: {
+        type: Object,
+        value: null
+      },
+      handle: {
+        type: Object,
+        value: null
+      },
+      query: {
+        type: Object,
+        value: function() { return {}; },
+      },
+      options: {
+        type: Object,
+        value: function() { return {}; },
+      }
+    },
+    observers: [ 'refind(collection, query, options)' ],
+    refind: function(collection, query, options) {
+      //console.log("(re)find meteor-query");
+
+      if (this.handle) {
+        this.handle.stop();
+        this.handle = null;
+      }
+
+      if (this.collection) {
+        this.data = [];
+        this.initialdata = [];
+        this.initdone = false;
+
+        this.handle = this.collection.find(this.query, this.options).observeChanges({
+          addedBefore: function(id, fields, before) {
+            // added _id
+            fields._id = id;
+            if (before == null) {
+              if (this.initdone) {
+                this.push('data', fields);
+              } else {
+                this.initialdata.push(fields);
+              }
+            } else {
+              if (this.initdone) {
+                var i = this._findIndex(this.data, before);
+                this.splice('data', i, 0, fields);
+              } else {
+                var i = this._findIndex(this.initData, before);
+                this.initdata.splice(i, 0, fields);
+              }
+            }
+          }.bind(this),
+          changed: function(id, fields) {
+            var entry = this.data[this._findIndex(this.data, id)];
+            for(var field in fields) {
+              if(fields[field] === undefined) {
+                delete entry[field];
+              } else {
+                entry[field] = fields[field];
+              }
+            }
+          }.bind(this),
+          movedBefore: function(id, before) {
+            var oldindex = this._findIndex(this.data, id);
+            var entry = this.data.splice(oldindex, 1)[0];
+
+            if (before) {
+              var newindex = this._findIndex(this.data, before);
+              this.splice('data', newindex, 0, entry);
+            } else {
+              this.push('data', entry);
+            }
+          }.bind(this),
+          removed: function(id) {
+            var index = this._findIndex(this.data, id);
+            this.splice('data', i, 1);
+          }.bind(this)
+        });
+
+        // push initial data as observeChanges returns.
+        this.initdone = true;
+        this.data = this.initialdata;
+        this.initialdata = null;
+      }
+    },
+    _findIndex: function(data, id) {
+      for (i = 0; i < data.length; i++) {
+        if (EJSON.equals(data[i]._id,id)) {
+          return i;
+        }
+      }
+      return -1;
+    },
+    ready: function() {
+    }
+  });
+</script>
