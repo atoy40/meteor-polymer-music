@@ -136,13 +136,10 @@
             }
           }.bind(this),
           changed: function(id, fields) {
-            var entry = this.data[this._findIndex(this.data, id)];
+            var index = this._findIndex(this.data, id);
             for(var field in fields) {
-              if(fields[field] === undefined) {
-                delete entry[field];
-              } else {
-                entry[field] = fields[field];
-              }
+              var path = ['data', index, field].join('.');
+              this.set(path, fields[field]);
             }
           }.bind(this),
           movedBefore: function(id, before) {

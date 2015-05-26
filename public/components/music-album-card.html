@@ -63,8 +63,8 @@
               <div class="card-album-artist">{{album.artist}}</div>
               <h3>Tracks</h3>
               <ol>
-                <template repeat="{{album.tracks}}">
-                  <li>{{}}</li>
+                <template is="dom-repeat" items="{{album.tracks}}">
+                  <li>{{item}}</li>
                 </template>
               </ol>
             </div>
@@ -81,14 +81,20 @@
     is: 'music-album-card',
     behaviors: [ Polymer.NeonSharedElementAnimatableBehavior ],
     properties: {
-      album: Object,
-      collection: Object,
+      album: {
+        type: Object,
+        //observer: '_dataTracksChanged'
+      },
+      collection: {
+        type: Object,
+        value: null
+      },
       sharedElements: {
         type: Object,
         value: function() {
           return {
             'hero': this.$.cover,
-            //'hero2': this.$.details,
+            'hero2': this.$.details,
           };
         }
       },
@@ -96,20 +102,20 @@
         value: function() {
           return {
             'entry': [
-              //{ name: 'hero-animation', id: 'hero2', toPage: this },
+              { name: 'hero-animation', id: 'hero2', toPage: this },
               { name: 'hero-animation', id: 'hero', toPage: this },
-              { name: 'fade-in-animation', node: this.$.container },
             ],
             'exit': [
+              { name: 'hero-animation', id: 'hero2', fromPage: this },
               { name: 'hero-animation', id: 'hero', fromPage: this },
-              { name: 'fade-out-animation', node: this.$.container },
             ],
           }
         }
       },
     },
     _computeChipStyle: function(item) {
-      return "background: "+item.art+";";
+      if (item)
+        return "background: url("+item.arturl+") 0 0/100% 100%;";
     },
     transition: function() {
       this.fire('back');

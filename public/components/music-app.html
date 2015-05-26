@@ -23,6 +23,7 @@
     <meteor-subscribe name="albums" isready="{{subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
+    <array-selector id="selector" items="{{items}}" selected="{{selectedAlbum}}"></array-selector>
 
     <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
       <div layout vertical>
@@ -51,6 +52,10 @@
         value: false,
         observer: '_subreadyChanged'
       },
+      selectedAlbum: {
+        type: Object,
+        value: null
+      }
     },
     _subreadyChanged: function(subready) {
       // wait subscribtion ready state before querying
@@ -60,9 +65,9 @@
     },
     transition: function(e) {
       if (this.page === 0 && e.detail.album) {
+        this.$.selector.select(e.detail.album);
         this.$.list.disable = true;
-        this.selectedAlbum = e.detail.album;
-        this.$.subalbum.args = [this.selectedAlbum._id]; // set album subscribtion parameter
+        this.$.subalbum.args = [e.detail.album._id]; // set album subscribtion parameter
         this.page = 1;
       } else {
         this.page = 0;

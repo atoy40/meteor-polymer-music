@@ -10,7 +10,6 @@
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="/bower_components/neon-animation/animations/hero-animation.html">
 <link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html">
-<!--link href="/bower_components/core-tooltip/core-tooltip.html" rel="import"-->
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="music-list-page">
@@ -152,7 +151,6 @@ Polymer({
       items2: {
         type: Array
       },
-      selectedAlbum: Object,
     },
     observers: [
       '_dataChanged(data.splices)',
@@ -161,20 +159,19 @@ Polymer({
       return status && status.connected ? 'cloud-done' : 'cloud-off';
     },
     _computeChipStyle: function(item) {
-      return "background: "+item.art+";";
+      return "background: url("+item.arturl+") 0 0/100% 100%;";
     },
     _onTapAlbum: function(e) {
       var node;
       for(node = e.target; !node.classList.contains('chip'); node = Polymer.dom(node).parentNode );;
 
       if (e.model && e.model.item) {
-        this.selectedAlbum = e.model.item;
 
-        /*this.animationConfig.exit.push({
+        this.animationConfig.exit.push({
           name: 'hero-animation',
           id: 'hero2',
           fromPage: this,
-        });*/
+        });
         this.animationConfig.exit.push({
           name: 'hero-animation',
           id: 'hero',
@@ -185,12 +182,17 @@ Polymer({
           id: 'hero',
           toPage: this,
         });
+        this.animationConfig.entry.push({
+          name: 'hero-animation',
+          id: 'hero2',
+          toPage: this,
+        });
 
-        //this.sharedElements['hero2'] = Polymer.dom(node).querySelector('.chip-bottom');
+        this.sharedElements['hero2'] =node; //Polymer.dom(node).querySelector('.chip-bottom');
         this.sharedElements['hero'] = Polymer.dom(node).querySelector('.chip-top');
 
         this.fire('tap-album', {
-          album: this.selectedAlbum,
+          album: e.model.item,
         });
       }
     },
@@ -198,6 +200,7 @@ Polymer({
       this.fire('new-album');
     },
     _dataChanged: function() {
+
       if (this.disable || Polymer.dom(this.$.pages).querySelectorAll('.neon-animating').length > 0) {
         this.hasChanged = true;
       } else {
@@ -226,7 +229,6 @@ Polymer({
       this.async(function() {
         this._configureAnimation();
         this.selected = this.selected ? 0 : 1;
-        console.log("swap page to "+this.selected);
       }.bind(this), 50);
     },
     _cascadePage: function(items) {
