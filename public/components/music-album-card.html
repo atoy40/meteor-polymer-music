@@ -82,12 +82,7 @@
     behaviors: [ Polymer.NeonSharedElementAnimatableBehavior ],
     properties: {
       album: {
-        type: Object,
-        //observer: '_dataTracksChanged'
-      },
-      collection: {
-        type: Object,
-        value: null
+        type: Object
       },
       sharedElements: {
         type: Object,
@@ -121,7 +116,7 @@
       this.fire('back');
     },
     delete: function() {
-      this.collection.remove(this.album._id);
+      this.fire('delete', { id: this.album._id });
       this.fire('back');
     }
   });

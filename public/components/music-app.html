@@ -1,8 +1,11 @@
-<link href="/bower_components/iron-icons/iron-icons.html" rel="import">
-<link href="/bower_components/neon-animation/neon-animated-pages.html" rel="import">
-<link href="/bower_components/paper-button/paper-button.html" rel="import">
-<link href="/bower_components/paper-dialog/paper-dialog.html" rel="import">
-<link href="/bower_components/paper-input/paper-input.html" rel="import">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="/bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="meteor-status.html">
 <link rel="import" href="meteor-collection.html">
 <link rel="import" href="music-list.html">
@@ -19,25 +22,28 @@
 
   <template>
     <meteor-status status="{{status}}"></meteor-status>
-    <meteor-collection name="music" ref="{{collection}}"></meteor-collection>
-    <meteor-subscribe name="albums" isready="{{subready}}"></meteor-subscribe>
+    <meteor-collection id="collection" name="music" on-insert="_onInsert"></meteor-collection>
+    <meteor-subscribe name="albums" isready="{{_subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
     <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
-    <array-selector id="selector" items="{{items}}" selected="{{selectedAlbum}}"></array-selector>
+    <array-selector id="selector" items="{{items}}" selected="{{album}}"></array-selector>
 
-    <paper-dialog id="popup" backdrop="true" heading="New album" transition="core-transition-center" autoCloseDisabled="true">
-      <div layout vertical>
-      <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
-      <paper-input id="newalbum" label="Album title" pattern="^.+$"></paper-input>
-      <paper-input id="newart" label="Art (css color code)" pattern="^#[A-Fa-f0-9]{6}$" error="A css color is required"></paper-input>
-    </div>
+    <paper-toast class="capsule" id="toast1"></paper-toast>
+
+    <paper-dialog id="popup" with-backdrop entry-animation="fade-in-animation" exit-animation="fade-out-animation" no-cancel-on-outside-click="true">
+      <h2>Add a new Album</h2>
+      <div class="layout vertical">
+        <paper-input id="newartist" label="Artist name" pattern="^.+$"></paper-input>
+        <paper-input id="newalbum" label="Album title" pattern="^.+$" on-change="_onAlbumChange"></paper-input>
+        <paper-input id="newart" label="Art URL" pattern="^http" error="An art URL is required"></paper-input>
+      </div>
       <paper-button dialog-dismiss>Cancel</paper-button>
-      <paper-button on-tap="createAlbum" dialog-confirm>Create album</paper-button>
+      <paper-button on-tap="_createAlbum" dialog-confirm>Create album</paper-button>
     </paper-dialog>
 
-    <neon-animated-pages selected="{{page}}" on-neon-animation-finish="complete">
-      <music-list id="list" data="{{items}}" on-tap-album="transition" on-new-album="openPopup"></music-list>
-      <music-album-card album="{{selectedAlbum}}" collection="{{collection}}" on-back="transition"></music-album-card>
+    <neon-animated-pages selected="{{page}}" on-neon-animation-finish="_complete">
+      <music-list id="list" data="{{items}}" on-tap-album="_transition" on-new-album="_openPopup"></music-list>
+      <music-album-card album="{{album}}" on-delete="_deleteAlbum" on-back="_transition"></music-album-card>
     </neon-animated-pages>
 
   </template>
@@ -47,23 +53,23 @@
   Polymer({
     is: 'music-app',
     properties: {
-      subready: {
+      _subready: {
         type: Boolean,
         value: false,
         observer: '_subreadyChanged'
       },
-      selectedAlbum: {
-        type: Object,
-        value: null
-      }
+    },
+    _onInsert: function(e) {
+      this.$.toast1.text = "Album created with ID "+e.detail.id+"";
+      this.$.toast1.show();
     },
     _subreadyChanged: function(subready) {
       // wait subscribtion ready state before querying
-      if (this.subready && this.collection) {
-        this.$.query.collection = this.collection;
+      if (this._subready) {
+        this.$.query.collection = this.$.collection.ref;
       }
     },
-    transition: function(e) {
+    _transition: function(e) {
       if (this.page === 0 && e.detail.album) {
         this.$.selector.select(e.detail.album);
         this.$.list.disable = true;
@@ -74,24 +80,33 @@
         this.$.subalbum.args = []; // unsubscribe to album
       }
     },
-    openPopup: function(e) {
-      //this.page = 1;
-      this.$.popup.opened = true;
+    _openPopup: function(e) {
+      this.$.popup.open();
     },
-    createAlbum: function(e) {
-      if (this.collection && this.status.connected) {
-        this.collection.insert({
+    _createAlbum: function(e) {
+      if (this.status.connected) {
+        this.$.collection.insert({
           artist: this.$.newartist.value,
           album: this.$.newalbum.value,
-          art: this.$.newart.value
+          arturl: this.$.newart.value
         });
       }
     },
-    complete: function() {
+    _deleteAlbum: function(e) {
+      this.$.collection.remove(e.detail.id);
+    },
+    _complete: function() {
       if (this.page === 0) {
         // reactivate animated changes
         this.$.list.disable = false;
       }
+    },
+    _onAlbumChange: function(e) {
+      var lorempixelcat = [
+        'abstract', 'city', 'people', 'transport', 'animals', 'food', 'nature',
+        'business', 'nightlife', 'sports', 'cats', 'fashion', 'technics'
+      ];
+      this.$.newart.value = "http://lorempixel.com/480/480/"+Random.choice(lorempixelcat)+"/"+e.target.value.replace(/\s/g, "%20");
     },
     ready: function() {
       this.page = 0;

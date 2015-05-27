@@ -20,6 +20,21 @@
         this.ref = new Mongo.Collection(this.name);
       }
     },
+    insert: function(doc) {
+      if (this.ref)
+        this.ref.insert(doc, function(err, id) {
+          if (err)
+            this.fire('error', { err: err });
+          else
+            this.fire('insert', { id: id });
+        }.bind(this));
+    },
+    remove: function(selector) {
+      if (this.ref)
+        this.ref.remove(selector, function(err) {
+          this.fire('error', { err: err });
+        }.bind(this));
+    },
   });
 </script>
 
