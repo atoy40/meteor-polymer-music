@@ -24,13 +24,11 @@
 
   <template>
     <meteor-connection status="{{status}}" on-server-disconnected="_onDisconnect"></meteor-status>
-
-    <meteor-collection id="collection" name="music" on-insert="_onInsert">
-      <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
-    </meteor-collection>
-
     <meteor-subscribe name="albums" isready="{{_subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
+    <meteor-collection id="collection" name="music" on-insert="_onInsert">
+      <meteor-query id="query" options="{{options}}" data="{{items}}" enable="{{_subready}}"></meteor-query>
+    </meteor-collection>
 
     <array-selector id="selector" items="{{items}}" selected="{{album}}"></array-selector>
 

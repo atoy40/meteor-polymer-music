@@ -1,8 +1,10 @@
 {
   "name": "Polytest",
   "version": "0.0.0",
-  "authors": [],
-  "license": "none",
+  "authors": [
+    "Anthony Hinsinger <anthony.hinsinger@gmail.com>"
+  ],
+  "license": "MIT",
   "private": true,
   "ignore": [
     "**/.*",

@@ -159,7 +159,7 @@ Polymer({
       return connected ? 'cloud-done' : 'cloud-off';
     },
     _computeChipStyle: function(item) {
-      return "background: url("+item.arturl+") 0 0/100% 100%;";
+      return "background: black url("+item.arturl+") 0 0/100% 100%;";
     },
     _onTapAlbum: function(e) {
       var node;
@@ -200,7 +200,7 @@ Polymer({
       this.fire('new-album');
     },
     _dataChanged: function() {
-
+      console.log(this.data.length);
       if (this.disable || Polymer.dom(this.$.pages).querySelectorAll('.neon-animating').length > 0) {
         this.hasChanged = true;
       } else {
@@ -208,8 +208,10 @@ Polymer({
       }
     },
     swapPage: function() {
-
       var firstLoad = !this.items1 && !this.items2;
+
+      if (firstLoad && this.data.length < 1)
+        return;
 
       if (this.selected || !this.items1) {
         this.items1 = firstLoad ? [] : this.data.slice();
@@ -232,7 +234,10 @@ Polymer({
       }.bind(this), 50);
     },
     _cascadePage: function(items) {
+      var delay = 100;
       var chips =  Polymer.dom(this.$.page1).querySelectorAll("div.chip");
+      var titles =  Polymer.dom(this.$.page1).querySelectorAll("div.chip-album-title");
+      var artists =  Polymer.dom(this.$.page1).querySelectorAll("div.chip-artist");
 
       this.$.page1.animationConfig.entry = [
         {
@@ -240,14 +245,44 @@ Polymer({
           animation: 'transform-animation',
           transformFrom: 'scale(0.6,0.6)',
           nodes: chips,
-          nodedelay: 100
+          nodedelay: delay
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: chips,
-          nodedelay: 100
-        }
+          nodedelay: delay
+        },
+        {
+          name: 'cascaded-animation',
+          animation: 'transform-animation',
+          transformFrom: 'translateX(-200%)',
+          nodes: titles,
+          nodedelay: delay,
+          timing: { delay: delay*chips.length }
+        },
+        {
+          name: 'cascaded-animation',
+          animation: 'fade-in-animation',
+          nodes: titles,
+          nodedelay: delay,
+          timing: { duration: 1500, delay: delay*chips.length }
+        },
+        {
+          name: 'cascaded-animation',
+          animation: 'transform-animation',
+          transformFrom: 'translateX(200%)',
+          nodes: artists,
+          nodedelay: delay,
+          timing: { delay: 1.7*delay*chips.length }
+        },
+        {
+          name: 'cascaded-animation',
+          animation: 'fade-in-animation',
+          nodes: artists,
+          nodedelay: delay,
+          timing: { duration: 1500, delay: 1.7*delay*chips.length }
+        },
       ];
     },
     _prepareAnimationConfig: function(page, items, otherPageIds, isCurrent) {
