@@ -243,7 +243,7 @@ Polymer({
         {
           name: 'cascaded-animation',
           animation: 'transform-animation',
-          transformFrom: 'scale(0.6,0.6)',
+          transformFrom: 'translateY(50%)',
           nodes: chips,
           nodedelay: delay
         },
@@ -259,14 +259,14 @@ Polymer({
           transformFrom: 'translateX(-200%)',
           nodes: titles,
           nodedelay: delay,
-          timing: { delay: delay*chips.length }
+          timing: { delay: 0.8*delay*chips.length }
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: titles,
           nodedelay: delay,
-          timing: { duration: 1500, delay: delay*chips.length }
+          timing: { duration: 1500, delay: 0.8*delay*chips.length }
         },
         {
           name: 'cascaded-animation',
@@ -274,14 +274,14 @@ Polymer({
           transformFrom: 'translateX(200%)',
           nodes: artists,
           nodedelay: delay,
-          timing: { delay: 1.7*delay*chips.length }
+          timing: { delay: 1.6*delay*chips.length }
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: artists,
           nodedelay: delay,
-          timing: { duration: 1500, delay: 1.7*delay*chips.length }
+          timing: { duration: 1500, delay: 1.6*delay*chips.length }
         },
       ];
     },
