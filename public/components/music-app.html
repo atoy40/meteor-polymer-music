@@ -6,8 +6,10 @@
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="meteor-status.html">
-<link rel="import" href="meteor-collection.html">
+<link rel="import" href="/bower_components/meteor-elements/meteor-connection.html">
+<link rel="import" href="/bower_components/meteor-elements/meteor-collection.html">
+<link rel="import" href="/bower_components/meteor-elements/meteor-subscribe.html">
+<link rel="import" href="/bower_components/meteor-elements/meteor-query.html">
 <link rel="import" href="music-list.html">
 <link rel="import" href="music-album-card.html">
 
@@ -21,11 +23,15 @@
   </style>
 
   <template>
-    <meteor-status status="{{status}}"></meteor-status>
-    <meteor-collection id="collection" name="music" on-insert="_onInsert"></meteor-collection>
+    <meteor-connection status="{{status}}" on-server-disconnected="_onDisconnect"></meteor-status>
+
+    <meteor-collection id="collection" name="music" on-insert="_onInsert">
+      <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
+    </meteor-collection>
+
     <meteor-subscribe name="albums" isready="{{_subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
-    <meteor-query id="query" options="{{options}}" data="{{items}}"></meteor-query>
+
     <array-selector id="selector" items="{{items}}" selected="{{album}}"></array-selector>
 
     <paper-toast class="capsule" id="toast1"></paper-toast>
@@ -59,6 +65,10 @@
         observer: '_subreadyChanged'
       },
     },
+    _onDisconnect: function() {
+      this.$.toast1.text = "Disconnected from meteor server";
+      this.$.toast1.show();
+    },
     _onInsert: function(e) {
       this.$.toast1.text = "Album created with ID "+e.detail.id+"";
       this.$.toast1.show();
@@ -66,7 +76,7 @@
     _subreadyChanged: function(subready) {
       // wait subscribtion ready state before querying
       if (this._subready) {
-        this.$.query.collection = this.$.collection.ref;
+        //this.$.query.collection = this.$.collection.ref;
       }
     },
     _transition: function(e) {

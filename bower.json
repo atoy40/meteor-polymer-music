@@ -12,16 +12,11 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#~0.9.3",
+    "polymer": "Polymer/polymer#~1.0.0",
     "layout": "Polymer/layout",
-    "iron-elements": "PolymerElements/iron-elements#~0.9.1",
-    "paper-elements": "PolymerElements/paper-elements#~0.9.1",
-    "neon-animation": "PolymerElements/neon-animation#~0.9.2",
-    "meteor-collection": "/home/ahinsing/Developpement/meteor/meteor-elements/meteor-collection",
-    "meteor-status": "/home/ahinsing/Developpement/meteor/meteor-elements/meteor-status"
-  },
-  "resolutions": {
-    "webcomponentsjs": "~0.7.0",
-    "polymer": "~0.9.3"
+    "iron-elements": "PolymerElements/iron-elements#~1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#~1.0.0",
+    "neon-elements": "PolymerElements/neon-elements#~1.0.0",
+    "meteor-elements": "atoy40/meteor-elements#~0.0.2"
   }
 }
