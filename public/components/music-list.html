@@ -19,7 +19,8 @@
     top: 75px;
     right: 0;
     left: 0;
-    text-align: center;
+    margin-left: 50px;
+    text-align: left;
   }
   </style>
   <template>
@@ -204,14 +205,18 @@ Polymer({
       if (this.disable || Polymer.dom(this.$.pages).querySelectorAll('.neon-animating').length > 0) {
         this.hasChanged = true;
       } else {
-        this.debounce("swap", this.swapPage);
+        this.debounce("swap", this.swapPage, 30);
       }
     },
     swapPage: function() {
+      //this._swapping = true;
       var firstLoad = !this.items1 && !this.items2;
 
-      if (firstLoad && this.data.length < 1)
+      console.log("debounce "+this.data.length);
+      if (firstLoad && this.data.length < 1) {
+        console.log('bla');
         return;
+      }
 
       if (this.selected || !this.items1) {
         this.items1 = firstLoad ? [] : this.data.slice();
@@ -234,7 +239,7 @@ Polymer({
       }.bind(this), 50);
     },
     _cascadePage: function(items) {
-      var delay = 100;
+      var delay = 50;
       var chips =  Polymer.dom(this.$.page1).querySelectorAll("div.chip");
       var titles =  Polymer.dom(this.$.page1).querySelectorAll("div.chip-album-title");
       var artists =  Polymer.dom(this.$.page1).querySelectorAll("div.chip-artist");
@@ -243,15 +248,16 @@ Polymer({
         {
           name: 'cascaded-animation',
           animation: 'transform-animation',
-          transformFrom: 'translateY(50%)',
+          transformFrom: 'translateY(30%)',
+          nodedelay: delay,
           nodes: chips,
-          nodedelay: delay
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: chips,
-          nodedelay: delay
+          nodedelay: delay,
+          timing: { easing: "ease-in" }
         },
         {
           name: 'cascaded-animation',
@@ -259,14 +265,14 @@ Polymer({
           transformFrom: 'translateX(-200%)',
           nodes: titles,
           nodedelay: delay,
-          timing: { delay: 0.8*delay*chips.length }
+          timing: {  easing: "ease-out", delay: delay*2 }
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: titles,
           nodedelay: delay,
-          timing: { duration: 1500, delay: 0.8*delay*chips.length }
+          timing: { duration: 1500, delay: delay*2 }
         },
         {
           name: 'cascaded-animation',
@@ -274,14 +280,14 @@ Polymer({
           transformFrom: 'translateX(200%)',
           nodes: artists,
           nodedelay: delay,
-          timing: { delay: 1.6*delay*chips.length }
+          timing: { easing: "ease-out", delay: delay*4 }
         },
         {
           name: 'cascaded-animation',
           animation: 'fade-in-animation',
           nodes: artists,
           nodedelay: delay,
-          timing: { duration: 1500, delay: 1.6*delay*chips.length }
+          timing: { duration: 1500, delay: delay*4 }
         },
       ];
     },
@@ -353,7 +359,7 @@ Polymer({
     },
     complete: function() {
       if (this.hasChanged) {
-        this.debounce("swap", this.swapPage);
+        this.debounce("swap", this.swapPage, 30);
         this.hasChanged = false;
       }
     }
