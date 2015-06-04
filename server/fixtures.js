@@ -5,7 +5,7 @@ if (Music.find({}).count() < 1) {
     'business', 'nightlife', 'sports', 'cats', 'fashion', 'technics'
   ];
 
-  for (var i = 0; i<10; i++) {
+  for (var i = 0; i<4; i++) {
 
     var tracks = [];
     for (var j = 0; j<Random.choice([5,6,7,8,9]); j++)
