@@ -16,6 +16,6 @@ then open your browser at http://locallhost:3000
 
 ## Informations
 
-In this project, meteor templates are not used to create views. There is only one body
-([music.html](client/music.html)) to instance the application main polymer element
-(<music-app>). Polymer elements are located into [public/components](public/components).
+In this project, meteor templates are not used to create views. There is only one &lt;body&gt;
+([music.html](client/music.html)) to instance the application main polymer element (&lt;music-app&gt;)
+and one &lt;head&gt; to initialize polymer itself. Polymer elements are located into [public/components](public/components).
