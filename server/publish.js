@@ -13,7 +13,7 @@ Meteor.publish('album', function(id) {
 
 Music.allow({
   insert: function(userId, doc) {
-    return true;
+    return Music.find({}).count() < 10;
   },
   remove: function(userId, doc) {
     return true;

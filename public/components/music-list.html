@@ -76,7 +76,7 @@ Polymer({
 
   <template>
 
-    <meteor-connection connected="{{connected}}"></meteor-status>
+    <meteor-connection connected="{{connected}}"></meteor-connection>
 
     <paper-toolbar id="toolbar">
       <div>MUSIC//LIBRARY</div>
@@ -168,6 +168,17 @@ Polymer({
 
       if (e.model && e.model.item) {
 
+        this.animationConfig = {
+          'entry': [{
+            name: 'slide-down-animation',
+            node: this.$.toolbar
+          }],
+          'exit': [{
+            name: 'slide-up-animation',
+            node: this.$.toolbar
+          }]
+        };
+
         this.animationConfig.exit.push({
           name: 'hero-animation',
           id: 'hero2',
@@ -191,6 +202,21 @@ Polymer({
 
         this.sharedElements['hero2'] =node; //Polymer.dom(node).querySelector('.chip-bottom');
         this.sharedElements['hero'] = Polymer.dom(node).querySelector('.chip-top');
+
+        // fade other chips
+        var chips =  Polymer.dom(this.$.pages).querySelectorAll("div.chip");
+        console.log(chips.length);
+        chips.forEach(function(chip) {
+            console.log("chip");
+            this.animationConfig.exit.push({
+              name: 'fade-out-animation',
+              node: chip,
+            });
+            this.animationConfig.entry.push({
+              name: 'fade-in-animation',
+              node: chip,
+            });
+        }.bind(this));
 
         this.fire('tap-album', {
           album: e.model.item,

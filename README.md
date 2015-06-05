@@ -12,7 +12,9 @@ cd meteor-polymer-music
 bower install
 meteor run
 ```
-then open your browser at http://locallhost:3000
+then open your browser at http://localhost:3000
+
+You can also test it at http://music.a-toy.eu/
 
 ## Informations
 

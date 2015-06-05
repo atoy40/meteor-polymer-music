@@ -23,10 +23,10 @@
   </style>
 
   <template>
-    <meteor-connection status="{{status}}" on-server-disconnected="_onDisconnect"></meteor-status>
+    <meteor-connection status="{{status}}" on-server-disconnected="_onDisconnect"></meteor-connection>
     <meteor-subscribe name="albums" isready="{{_subready}}"></meteor-subscribe>
     <meteor-subscribe id="subalbum" name="album"></meteor-subscribe>
-    <meteor-collection id="collection" name="music" on-insert="_onInsert">
+    <meteor-collection id="collection" name="music" on-insert="_onInsert" on-error="_onError">
       <meteor-query id="query" options="{{options}}" data="{{items}}" enable="{{_subready}}"></meteor-query>
     </meteor-collection>
 
@@ -69,6 +69,10 @@
     },
     _onInsert: function(e) {
       this.$.toast1.text = "Album created with ID "+e.detail.id+"";
+      this.$.toast1.show();
+    },
+    _onError: function(e) {
+      this.$.toast1.text = "A problem occurs "+e.detail.error;
       this.$.toast1.show();
     },
     _subreadyChanged: function(subready) {

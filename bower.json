@@ -18,6 +18,6 @@
     "iron-elements": "PolymerElements/iron-elements#~1.0.0",
     "paper-elements": "PolymerElements/paper-elements#~1.0.0",
     "neon-elements": "PolymerElements/neon-elements#~1.0.0",
-    "meteor-elements": "atoy40/meteor-elements#~0.0.2"
+    "meteor-elements": "atoy40/meteor-elements#~0.0.3"
   }
 }
