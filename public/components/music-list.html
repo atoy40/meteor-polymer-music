@@ -210,9 +210,7 @@ Polymer({
 
         // fade other chips
         var chips =  Polymer.dom(this.$.pages).querySelectorAll("div.chip");
-        console.log(chips.length);
         chips.forEach(function(chip) {
-            console.log("chip");
             this.animationConfig.exit.push({
               name: 'fade-out-animation',
               node: chip,
@@ -232,7 +230,6 @@ Polymer({
       this.fire('new-album');
     },
     _dataChanged: function() {
-      console.log(this.data.length);
       if (this.disable || Polymer.dom(this.$.pages).querySelectorAll('.neon-animating').length > 0) {
         this.hasChanged = true;
       } else {
@@ -243,9 +240,7 @@ Polymer({
       //this._swapping = true;
       var firstLoad = !this.items1 && !this.items2;
 
-      console.log("debounce "+this.data.length);
       if (firstLoad && this.data.length < 1) {
-        console.log('bla');
         return;
       }
 

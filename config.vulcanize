@@ -1,0 +1,7 @@
+{
+  "polyfill": "/bower_components/webcomponentsjs/webcomponents.min.js",
+  "useShadowDom": false,
+  "imports": [
+    "/components/music-app.html"
+  ]
+}

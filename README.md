@@ -9,12 +9,14 @@ It's based on the [meteor-elements](https://github.com/atoy40/meteor-elements) p
 ```
 git clone https://github.com/atoy40/meteor-polymer-music.git
 cd meteor-polymer-music
-bower install
 meteor run
 ```
 then open your browser at http://localhost:3000
 
 You can also test it at http://music.a-toy.eu/
+
+Bower dependencies are installed automatically by mquandalle:bower and
+html import (with vulcanization if needed) by differential:vulcanize
 
 ## Informations
 
