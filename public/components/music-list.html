@@ -11,6 +11,7 @@
 <link rel="import" href="/bower_components/neon-animation/animations/hero-animation.html">
 <link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
 
 <dom-module id="music-list-page">
   <style>
@@ -83,6 +84,7 @@ Polymer({
       <span class="flex"></span>
       <paper-icon-button icon="add-circle-outline" on-tap="newAlbum"></paper-icon-button>
       <paper-icon-button icon="{{_getStatusIcon(connected)}}"></paper-icon-button>
+      <paper-button style="margin-left: 15px; background: #FF5722;" on-tap="_goGithub">code on Github</paper-button>
     </paper-toolbar>
 
     <neon-animated-pages id="pages" selected="{{selected}}" on-neon-animation-finish="complete">
@@ -156,6 +158,9 @@ Polymer({
     observers: [
       '_dataChanged(data.splices)',
     ],
+    _goGithub: function() {
+      window.open("https://github.com/atoy40/meteor-polymer-music", '_blank');
+    },
     _getStatusIcon: function(connected) {
       return connected ? 'cloud-done' : 'cloud-off';
     },
